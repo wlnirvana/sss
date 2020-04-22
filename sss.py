@@ -6,11 +6,17 @@ import shutil
 import sys
 import tempfile
 
+USAGE = """
+Sss - Self-extracting Scriptifer
+
+usage:
+    python3 sss.py      -- verbose version of sss
+    sss                 -- attempt to extract the project contained if any
+    sss <directory>     -- scriptify the directory"""
+
 # Python version sanity check (>= 3.5)
 if sys.version_info[0] < 3 or (sys.version_info[0] == 3 and sys.version_info[1] <= 4):
     raise Exception('Your Python version has reached EOL!')
-
-iterbytes = iter
 
 
 def encode_file(filename):
@@ -38,23 +44,23 @@ def scriptify(prj_dir):
     tmpdir = tempfile.mkdtemp()
 
     try:
-        # Compress
-        zip_filename = os.path.join(tmpdir, 'prj.zip')
-        shutil.make_archive(zip_filename[:-4], 'zip', prj_dir)
-
-        # Encode as base85
-        encoded_string = encode_file(zip_filename)
-        data_string = '\n'.join([encoded_string[i:i+70]
-                                 for i in range(0, len(encoded_string), 70)])
-
-        # Cheating Quine
-        script_filename = 'project.py'
+        # Copy the file itself
+        script_filename = 'sss.py'
         if os.path.exists(script_filename):
             raise Exception(
                 'Failed to create %s - file already exists.' % script_filename)
         shutil.copy(__file__, script_filename)
 
-        # Replace the placeholder with base85 data
+        # Compress data
+        zip_filename = os.path.join(tmpdir, 'prj.zip')
+        shutil.make_archive(zip_filename[:-4], 'zip', prj_dir)
+
+        # Encode data as base85
+        encoded_string = encode_file(zip_filename)
+        data_string = '\n'.join([encoded_string[i:i+70]
+                                 for i in range(0, len(encoded_string), 70)])
+
+        # Replace placeholder in script with base85 data
         inject_data(script_filename, data_string)
 
         print("Successfully scripted as %s" % script_filename)
@@ -64,13 +70,23 @@ def scriptify(prj_dir):
 
 
 def projectify():
-    tmpdir = tempfile.mkdtemp()
-    zip_filename = os.path.join(tmpdir, "prj.zip")
-    with open(zip_filename, 'wb') as f:
-        f.write(b85decode(DATA.replace(b'\n', b'')))
-    shutil.unpack_archive(zip_filename, tmpdir)
-    os.remove(zip_filename)
-    print('Project extracted at %s' % tmpdir)
+    if b"DONT_PANIC" in DATA:
+        # print usage and exit
+        print("There are no project data in this script!")
+        print(USAGE)
+    else:
+        tmpdir = tempfile.mkdtemp()
+        confirm = input("Extract project to %s? ([Y/n]): ")
+        if len(confirm) == 0 or confirm.lower() == 'y':
+            zip_filename = os.path.join(tmpdir, "prj.zip")
+            with open(zip_filename, 'wb') as f:
+                f.write(b85decode(DATA.replace(b'\n', b'')))
+            shutil.unpack_archive(zip_filename, tmpdir)
+            os.remove(zip_filename)
+            print('Project extracted at %s' % tmpdir)
+        else:
+            print('User aborted!')
+            shutil.rmtree(tmpdir, ignore_errors=True)
 
 
 def main():
