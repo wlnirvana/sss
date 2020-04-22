@@ -4,6 +4,6 @@ Sss creates a standalone self-extracting script from your project, suitable for 
 
 ## TODOs
 
-[-] when invoked to see the help message without any args, it tries to extract the "DONT_PANIC" message.
+- [x] when invoked to see the help message without any args, it tries to extract the "DONT_PANIC" message.
 
-[1]:https://stackoverflow.com/help/minimal-reproducible-example
+[1]: https://stackoverflow.com/help/minimal-reproducible-example
