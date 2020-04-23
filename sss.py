@@ -76,7 +76,7 @@ def projectify():
         print(USAGE)
     else:
         tmpdir = tempfile.mkdtemp()
-        confirm = input("Extract project to %s? ([Y/n]): ")
+        confirm = input("Extract project to %s? ([Y/n]): " % tmpdir)
         if len(confirm) == 0 or confirm.lower() == 'y':
             zip_filename = os.path.join(tmpdir, "prj.zip")
             with open(zip_filename, 'wb') as f:
