@@ -76,14 +76,14 @@ def projectify():
         print(USAGE)
     else:
         tmpdir = tempfile.mkdtemp()
-        confirm = input("Extract project to %s? ([Y/n]): " % tmpdir)
+        confirm = input("Extract project to %s ? ([Y/n]): " % tmpdir)
         if len(confirm) == 0 or confirm.lower() == 'y':
             zip_filename = os.path.join(tmpdir, "prj.zip")
             with open(zip_filename, 'wb') as f:
                 f.write(b85decode(DATA.replace(b'\n', b'')))
             shutil.unpack_archive(zip_filename, tmpdir)
             os.remove(zip_filename)
-            print('Project extracted at %s' % tmpdir)
+            print('Project extracted successfully!')
         else:
             print('User aborted!')
             shutil.rmtree(tmpdir, ignore_errors=True)
